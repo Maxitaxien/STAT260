@@ -1,0 +1,1 @@
+lm.fit = lm(medv ~ lstat, data=Boston)
