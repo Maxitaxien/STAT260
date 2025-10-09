@@ -33,3 +33,4 @@ fit4 = smooth.spline(age, wage, cv=TRUE)
 # This is done with the loess() function. See book, p. 318
 # Can also use locfit library for this.
 
+ 
