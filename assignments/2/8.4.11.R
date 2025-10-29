@@ -28,7 +28,7 @@ yhat.label = ifelse(yhat.boost > 0.2, 1, 0)
 print(table(yhat.label, Caravan.test$Purchase))
 
 # Fraction of people predicted to make a purchase that do make one
-# (TP) / (TP + FP)
+# Precision = (TP) / (TP + FP)
 TP = sum(yhat.label == 1 & Caravan.test$Purchase == 1)
 FP = sum(yhat.label == 1 & Caravan.test$Purchase == 0)
 print(TP / (TP + FP)) # 0.1359649
@@ -38,15 +38,29 @@ print(TP / (TP + FP)) # 0.1359649
 library(class)
 k = 3 
 
-# Standardizing data for KNN
-# Remove column 86 - "Purchase"
+# Standardizing data for KNN (KNN algo is sensitive to scale)
+# Remove column 86 - "Purchase" for X
 standardized.X = scale(Caravan[, -86])
 train.X = standardized.X[train, ]
-test.X = standardized.X[test, ]
+test.X = standardized.X[-train, ]
 
-train.Y = Caravan$
+train.Y = Caravan.train$Purchase
+test.Y = Caravan.test$Purchase
 
 
-knn.pred = knn()
+knn.pred = knn(train.X, test.X, train.Y, k=k)
+TP = sum(knn.pred == 1 & Caravan.test$Purchase == 1)
+FP = sum(knn.pred == 1 & Caravan.test$Purchase == 0)
+print(table(knn.pred, Caravan.test$Purchase))
+print(TP / (TP + FP)) # 0.2066116
 
 # Logistic regression
+lg = glm(Purchase ~., data=Caravan.train, family=binomial)
+lg.probs = predict(lg, newdata=Caravan.test, type='response')
+
+lg.pred = ifelse(lg.probs > 0.2, 1, 0)
+print(table(lg.pred, Caravan.test$Purchase))
+
+TP = sum(lg.pred == 1 & Caravan.test$Purchase == 1)
+FP = sum(lg.pred == 1 & Caravan.test$Purchase == 0)
+print(TP / (TP + FP)) # 0.1359649
